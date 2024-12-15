@@ -1,7 +1,7 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from connection_pool import CustomConnectionPool
-from async_connection_pool import CustomAsyncConnectionPool
+from connection_pool import ConnectionPool
+from async_connection_pool import ConnectionPool as AsyncConnectionPool
 import socket
 import mysql.connector
 import time
@@ -11,21 +11,19 @@ from contextlib import asynccontextmanager
 
 
 def start_server():
-    connection_pool = None
-    async_connection_pool = None
+    connections = {}
 
     @asynccontextmanager
     async def lifespan(app: FastAPI):
         # Load the ML model
-        connection_pool = CustomConnectionPool(10, 20)
-        async_connection_pool = CustomAsyncConnectionPool(10, 20)
+        connections["sync_connection_pool"] = ConnectionPool(10, 20)
+        connections["async_connection_pool"] = AsyncConnectionPool(10, 20)
+        print("omnoa")
         yield
         # Clean up the ML models and release the resources
-        connection_pool.close_connections()
-        async_connection_pool.close_connections()
+        connections["sync_connection_pool"].close_connections()
+        connections["async_connection_pool"].close_connections()
 
-    connection_pool = CustomConnectionPool(10, 20)
-    async_connection_pool = CustomAsyncConnectionPool(10, 20)
     app = FastAPI(lifespan=lifespan)
 
     app.add_middleware(
@@ -61,9 +59,9 @@ def start_server():
 
     def _benchmark_with_custom_threaded_connection_pool():
         thread_local = threading.local()
-        new_connection = connection_pool.get_connection()
+        new_connection = connections["sync_connection_pool"].get_connection()
         new_connection.ping()
-        connection_pool.return_connection(new_connection)
+        connections["sync_connection_pool"].return_connection(new_connection)
         thread_local.value = threading.current_thread().name
         print("thread name", thread_local.value)
 
@@ -91,9 +89,9 @@ def start_server():
         return output
 
     async def _benchmark_with_custom_async_threaded_connection_pool():
-        new_connection = await async_connection_pool.get_connection()
+        new_connection = await connections["async_connection_pool"].get_connection()
         new_connection.ping()
-        await async_connection_pool.return_connection(new_connection)
+        await connections["async_connection_pool"].return_connection(new_connection)
 
     @app.get("/benchmark/with_custom_async_connection_pool")
     async def benchmark_with_custom_async_connection_pool(_range=100):

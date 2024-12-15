@@ -4,7 +4,7 @@ from helper import get_mysql_connection
 import threading
 
 
-class CustomConnectionPool:
+class ConnectionPool:
     connections = []
 
     def __init__(self, min_pool_size, max_pool_size):
@@ -34,7 +34,7 @@ class CustomConnectionPool:
 
 
 def test_custom_connection_pool():
-    connection_pool = CustomConnectionPool(10, 20)
+    connection_pool = ConnectionPool(10, 20)
     tasks = []
     start_time = time.time()
 

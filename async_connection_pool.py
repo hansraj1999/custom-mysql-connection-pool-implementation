@@ -4,7 +4,7 @@ import asyncio
 import time
 
 
-class CustomAsyncConnectionPool:
+class ConnectionPool:
     connections = []
 
     def __init__(self, min_pool_size, max_pool_size):
@@ -34,7 +34,7 @@ class CustomAsyncConnectionPool:
 
 
 async def test_custom_async_connection_pool():
-    async_connection_pool = CustomAsyncConnectionPool(10, 20)
+    async_connection_pool = ConnectionPool(10, 20)
 
     async def _benchmark_with_custom_async_threaded_connection_pool():
         new_connection = await async_connection_pool.get_connection()
