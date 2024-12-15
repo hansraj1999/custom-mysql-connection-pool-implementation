@@ -3,6 +3,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from connection_pool import ConnectionPool
 from async_connection_pool import ConnectionPool as AsyncConnectionPool
 import socket
+from helper import get_mysql_connection
 import mysql.connector
 import time
 import threading
@@ -18,11 +19,14 @@ def start_server():
         # Load the ML model
         connections["sync_connection_pool"] = ConnectionPool(10, 20)
         connections["async_connection_pool"] = AsyncConnectionPool(10, 20)
-        print("omnoa")
+        connections["inbuilt_connection_pool"] = get_mysql_connection(use_pool=True)
+        print("created connections")
         yield
+        print("closing connections")
         # Clean up the ML models and release the resources
         connections["sync_connection_pool"].close_connections()
         connections["async_connection_pool"].close_connections()
+        connections["inbuilt_connection_pool"].close()
 
     app = FastAPI(lifespan=lifespan)
 
@@ -43,9 +47,7 @@ def start_server():
     async def benchmark_without_pool(_range=100):
         start_time = time.time()
         for i in range(int(_range) + 1):
-            new_connection = mysql.connector.connect(
-                host="host.docker.internal", user="test_user", password="test_password"
-            )
+            new_connection = get_mysql_connection()
             new_connection.ping()
 
         total_time_took = time.time() - start_time
@@ -53,6 +55,22 @@ def start_server():
             "time_took": total_time_took,
             "range": _range,
             "bench_type": "without_connection_pool",
+        }
+        print(output)
+        return output
+
+    @app.get("/benchmark/with_inbuilt_connection_pool")
+    async def benchmark_with_inbuilt_connection_pool(_range=100):
+        start_time = time.time()
+        for i in range(int(_range) + 1):
+            new_connection = connections["inbuilt_connection_pool"]
+            new_connection.ping()
+
+        total_time_took = time.time() - start_time
+        output = {
+            "time_took": total_time_took,
+            "range": _range,
+            "bench_type": "with_inbuilt_connection_pool",
         }
         print(output)
         return output
