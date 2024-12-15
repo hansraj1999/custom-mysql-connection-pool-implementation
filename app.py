@@ -16,14 +16,12 @@ def start_server():
 
     @asynccontextmanager
     async def lifespan(app: FastAPI):
-        # Load the ML model
         connections["sync_connection_pool"] = ConnectionPool(10, 20)
         connections["async_connection_pool"] = AsyncConnectionPool(10, 20)
         connections["inbuilt_connection_pool"] = get_mysql_connection(use_pool=True)
         print("created connections")
         yield
         print("closing connections")
-        # Clean up the ML models and release the resources
         connections["sync_connection_pool"].close_connections()
         connections["async_connection_pool"].close_connections()
         connections["inbuilt_connection_pool"].close()
