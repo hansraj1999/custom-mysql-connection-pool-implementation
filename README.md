@@ -75,7 +75,7 @@ You can evaluate the performance of different connection pool strategies by call
 
 > curl -X 'GET' 'http://localhost:8000/benchmark/with_inbuilt_connection_pool?_range=100' -H 'accept: application/json'
 
--> { "time_took": 0.11063241958618164, "range": "100", "bench_type": "with_custom_threaded_connection_pool" }
+-> { "time_took": 1.1707117557525635, "range": "100", "bench_type": "with_custom_threaded_connection_pool" }
 > curl -X 'GET' 'http://localhost:8000/benchmark/with_custom_threaded_connection_pool?_range=100' -H 'accept: application/json'
 
 ->{ "time_took": 0.12557268142700195, "range": "100", "bench_type": "benchmark_with_custom_threaded_connection_pool" }
