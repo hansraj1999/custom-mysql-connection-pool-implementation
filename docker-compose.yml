@@ -1,0 +1,44 @@
+  
+version: "3.9"
+
+services:
+  fastapi-app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: fastapi-app-test
+    working_dir: /app
+    volumes:
+      - ./:/app
+    ports:
+      - "8000:8000"
+    depends_on:
+      - mysql
+    networks:
+      - app-network
+    environment:
+      PYTHONUNBUFFERED: 1
+      TYPE: SERVER
+  
+  mysql:
+    image: mysql:9.1.0
+    container_name: mysql_test
+    environment:
+      MYSQL_ROOT_PASSWORD: root_password
+      MYSQL_DATABASE: test_db
+      MYSQL_USER: test_user
+      MYSQL_PASSWORD: test_password
+    ports:
+      - "3306:3306"
+    volumes:
+      - mysql_data:/var/lib/mysql
+    networks:
+      - app-network
+
+
+volumes:
+  mysql_data:
+
+networks:
+  app-network:
+    driver: bridge
