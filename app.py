@@ -81,7 +81,7 @@ def start_server():
         thread_local.value = threading.current_thread().name
         print("thread name", thread_local.value)
 
-    @app.get("/benchmark/with_custom_connection_pool")
+    @app.get("/benchmark/with_custom_threaded_connection_pool")
     async def benchmark_with_custom_threaded_connection_pool(_range=100):
         start_time = time.time()
         tasks = []
