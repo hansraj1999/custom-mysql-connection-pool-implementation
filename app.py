@@ -18,6 +18,7 @@ def start_server():
     async def lifespan(app: FastAPI):
         connections["sync_connection_pool"] = ConnectionPool(10, 20)
         connections["async_connection_pool"] = AsyncConnectionPool(10, 20)
+        await connections["async_connection_pool"].initialize_pool()
         connections["inbuilt_connection_pool"] = get_mysql_connection(use_pool=True)
         print("created connections")
         yield
