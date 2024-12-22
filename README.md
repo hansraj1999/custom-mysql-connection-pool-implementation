@@ -1,4 +1,4 @@
-# Custom MySQL Connection Pool
+# Custom MySQL Connection Pool Implementation
 
 This repository contains a comprehensive implementation of custom MySQL connection pools (both synchronous and asynchronous) for FastAPI. It also includes benchmarking routes to evaluate the performance of different connection pool strategies.
 
